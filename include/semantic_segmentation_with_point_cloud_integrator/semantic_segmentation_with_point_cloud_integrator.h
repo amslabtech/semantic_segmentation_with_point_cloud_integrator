@@ -50,6 +50,7 @@ public:
     void get_color_from_distance(double, int&, int&, int&);
     void sensor_fusion(const sensor_msgs::Image&, const sensor_msgs::CameraInfo&, const sensor_msgs::PointCloud2&);
     void coloring_pointcloud(PointCloudTypePtr&, int, int, int);
+    bool is_in_extraction_classes(int, int, int);
     void process(void);
 
 private:
@@ -74,6 +75,8 @@ private:
 
     tf::TransformListener listener;
     Eigen::Affine3d transform;
+    typedef std::tuple<int, int, int> ColorTuple;
+    std::map<ColorTuple, std::string> color_with_class;
 };
 
 #endif// __SEMANTIC_SEGMENTATION_WITH_POINT_CLOUD_INTEGRATOR_H

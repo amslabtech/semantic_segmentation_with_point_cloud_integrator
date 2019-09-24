@@ -45,9 +45,14 @@ SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloud
 
     BOOST_FOREACH(boost::property_tree::ptree::value_type &child, ptree.get_child("labels"))
     {
+        std::string class_name = "";
+        int red = 0;
+        int green = 0;
+        int blue = 0;
         const boost::property_tree::ptree& labels = child.second;
         if(boost::optional<std::string> label = labels.get_optional<std::string>("label")) {
             std::cout << "label : " << label.get() << std::endl;
+            class_name = label.get();
         }else{
             std::cout << "label is nothing" << std::endl;
             exit(-1);
@@ -55,21 +60,35 @@ SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloud
         const boost::property_tree::ptree& color = child.second.get_child("color");
         if(boost::optional<int> r = color.get_optional<int>("r")){
             std::cout << "r : " << r.get() << std::endl;
+            red = r.get();
         }else{
             std::cout << "color.r is nothing" << std::endl;
+            exit(-1);
         }
         if(boost::optional<int> g = color.get_optional<int>("g")){
             std::cout << "g : " << g.get() << std::endl;
+            green = g.get();
         }else{
             std::cout << "color.g is nothing" << std::endl;
+            exit(-1);
         }
         if(boost::optional<int> b = color.get_optional<int>("b")){
             std::cout << "b : " << b.get() << std::endl;
+            blue = b.get();
         }else{
             std::cout << "color.b is nothing" << std::endl;
+            exit(-1);
         }
+        std::cout << red << ", " << green << ", " << blue << ", " << class_name << std::endl;;
+        color_with_class[std::make_tuple(red, green, blue)] = class_name;
     }
     std::cout << "json was loaded" << std::endl;
+    std::cout << "color with class:" << std::endl;
+    std::cout << "size: " << color_with_class.size() << std::endl;
+    for(const auto& value : color_with_class){
+        std::cout << "red: " << std::get<0>(value.first) << ", green:" << std::get<1>(value.first) << ", blue: " << std::get<2>(value.first) << ", class: " << value.second << std::endl;
+    }
+    std::cout << "waiting for data..." << std::endl;
 }
 
 void SemanticSegmentationWithPointCloudIntegrator::callback(const sensor_msgs::ImageConstPtr& image, const sensor_msgs::CameraInfoConstPtr& camera_info, const sensor_msgs::PointCloud2ConstPtr& pc)
@@ -144,6 +163,10 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
     *colored_cloud = *trans_cloud;
     cv::Mat projection_image = rgb_image.clone();
 
+    // semantic cloud
+    PointCloudTypePtr semantic_cloud(new PointCloudType);
+    semantic_cloud->header = colored_cloud->header;
+
     for(auto& pt : colored_cloud->points){
         if(pt.z<0){
             // behind camera
@@ -160,6 +183,10 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
                 pt.g = rgb_image.at<cv::Vec3b>(uv)[1];
                 pt.r = rgb_image.at<cv::Vec3b>(uv)[2];
 
+                if(is_in_extraction_classes(pt.r, pt.g, pt.b)){
+                    semantic_cloud->points.push_back(pt);
+                }
+
                 double distance = sqrt(pt.x * pt.x + pt.y * pt.y + pt.z * pt.z);
                 int r, g, b;
                 get_color_from_distance(distance, r, g, b);
@@ -171,9 +198,6 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
             }
         }
     }
-
-    // semantic cloud
-    PointCloudTypePtr semantic_cloud(new PointCloudType);
 
     PointCloudTypePtr output_sc(new PointCloudType);
     pcl::copyPointCloud(*semantic_cloud, *output_sc);
@@ -221,6 +245,11 @@ void SemanticSegmentationWithPointCloudIntegrator::coloring_pointcloud(PointClou
         pt.g = g;
         pt.b = b;
     }
+}
+
+bool SemanticSegmentationWithPointCloudIntegrator::is_in_extraction_classes(int r, int g, int b)
+{
+    return false;
 }
 
 void SemanticSegmentationWithPointCloudIntegrator::process(void)
