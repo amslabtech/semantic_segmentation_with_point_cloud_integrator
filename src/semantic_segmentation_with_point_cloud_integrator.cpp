@@ -2,10 +2,10 @@
 
 SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloudIntegrator(void)
     : local_nh("~"),
-      image_sub(nh, "/camera/color/image_raw", 10), camera_info_sub(nh, "/camera/color/camera_info", 10), pc_sub(nh, "/velodyne_points", 10), sensor_fusion_sync(sensor_fusion_sync_subs(10), image_sub, camera_info_sub, pc_sub)
+      image_sub(nh, "/segmented_image", 10), camera_info_sub(nh, "/camera_info", 10), pc_sub(nh, "/pointcloud", 10), sensor_fusion_sync(sensor_fusion_sync_subs(10), image_sub, camera_info_sub, pc_sub)
 {
     image_pub = nh.advertise<sensor_msgs::Image>("/projection/raw", 1);
-    pc_pub = nh.advertise<sensor_msgs::PointCloud2>("/colored_cloud", 1);
+    pc_pub = nh.advertise<sensor_msgs::PointCloud2>("/cloud/colored/raw", 1);
     semantic_cloud_pub = nh.advertise<sensor_msgs::PointCloud2>("/cloud/colored/semantic", 1);
     projection_semantic_image_pub = nh.advertise<sensor_msgs::Image>("/projection/semantic", 1);
     sensor_fusion_sync.registerCallback(boost::bind(&SemanticSegmentationWithPointCloudIntegrator::callback, this, _1, _2, _3));
