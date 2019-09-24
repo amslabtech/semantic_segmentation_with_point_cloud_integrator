@@ -57,6 +57,10 @@ SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloud
             std::cout << "label is nothing" << std::endl;
             exit(-1);
         }
+        if(std::find(EXTRACTION_CLASSES_LIST.begin(), EXTRACTION_CLASSES_LIST.end(), class_name) == EXTRACTION_CLASSES_LIST.end()){
+            std::cout << "skipped" << std::endl;
+            continue;
+        }
         const boost::property_tree::ptree& color = child.second.get_child("color");
         if(boost::optional<int> r = color.get_optional<int>("r")){
             std::cout << "r : " << r.get() << std::endl;
