@@ -4,7 +4,7 @@
 
     <arg name="max_distance" default="20.0"/>
     <arg name="labels_path" default="$(find semantic_segmentation_with_point_cloud_integrator)/config/coco.json"/>
-    <arg name="extraction_classes" default="ground, road, sidewald, terrain"/>
+    <arg name="extraction_classes" default="ground, road, sidewalk, terrain"/>
 
     <node pkg="semantic_segmentation_with_point_cloud_integrator" type="semantic_segmentation_with_point_cloud_integrator" name="semantic_segmentation_with_point_cloud_integrator">
         <param name="MAX_DISTANCE" value="$(arg max_distance)"/>
