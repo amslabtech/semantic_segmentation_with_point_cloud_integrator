@@ -55,6 +55,8 @@ public:
 private:
     double MAX_DISTANCE;
     std::string LABELS_PATH;
+    std::string EXTRACTION_CLASSES;
+    std::vector<std::string> EXTRACTION_CLASSES_LIST;
 
     ros::NodeHandle nh;
     ros::NodeHandle local_nh;

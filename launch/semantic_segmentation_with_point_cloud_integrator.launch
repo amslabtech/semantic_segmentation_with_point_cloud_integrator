@@ -4,10 +4,12 @@
 
     <arg name="max_distance" default="20.0"/>
     <arg name="labels_path" default="$(find semantic_segmentation_with_point_cloud_integrator)/config/coco.json"/>
+    <arg name="extraction_classes" default="ground, road, sidewald, terrain"/>
 
     <node pkg="semantic_segmentation_with_point_cloud_integrator" type="semantic_segmentation_with_point_cloud_integrator" name="semantic_segmentation_with_point_cloud_integrator">
         <param name="MAX_DISTANCE" value="$(arg max_distance)"/>
         <param name="LABELS_PATH" value="$(arg labels_path)"/>
+        <param name="EXTRACTION_CLASSES" value="$(arg extraction_classes)"/>
         <remap from="/camera/color/image_raw" to="/deeplab_ros/segmented_image"/>
         <remap from="/camera/color/camera_info" to="/usb_cam/camera_info"/>
         <remap from="/velodyne_points" to="/velodyne_points"/>

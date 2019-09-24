@@ -12,16 +12,38 @@ SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloud
 
     local_nh.param("MAX_DISTANCE", MAX_DISTANCE, {20.0});
     local_nh.param("LABELS_PATH", LABELS_PATH, {""});
+    local_nh.param("EXTRACTION_CLASSES", EXTRACTION_CLASSES, {"ground, road, sidewald, terrain"});
 
     std::cout << "=== semantic_segmentation_with_point_cloud_integrator ===" << std::endl;
     std::cout << "MAX_DISTANCE: " << MAX_DISTANCE << std::endl;
     std::cout << "LABELS_PATH: " << LABELS_PATH << std::endl;
+    std::cout << "EXTRACTION_CLASSES: " << std::endl;
+
+    // remove space
+    size_t pos;
+    while((pos = EXTRACTION_CLASSES.find_first_of(" 　\t")) != std::string::npos){
+        EXTRACTION_CLASSES.erase(pos, 1);
+    }
+    // separate by ","
+    while(1){
+        static auto offset = std::string::size_type(0);
+        auto pos = EXTRACTION_CLASSES.find(",", offset);
+        if(pos == std::string::npos){
+            EXTRACTION_CLASSES_LIST.push_back(EXTRACTION_CLASSES.substr(offset));
+            break;
+        }
+        EXTRACTION_CLASSES_LIST.push_back(EXTRACTION_CLASSES.substr(offset, pos - offset));
+        offset = pos + std::string(",").length();
+    }
+    for(const auto& str : EXTRACTION_CLASSES_LIST){
+        std::cout << str << std::endl;
+    }
 
     // load json
-    boost::property_tree::ptree pt;
-    boost::property_tree::read_json(LABELS_PATH, pt);
+    boost::property_tree::ptree ptree;
+    boost::property_tree::read_json(LABELS_PATH, ptree);
 
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &child, pt.get_child("labels"))
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &child, ptree.get_child("labels"))
     {
         const boost::property_tree::ptree& labels = child.second;
         if(boost::optional<std::string> label = labels.get_optional<std::string>("label")) {
