@@ -253,6 +253,12 @@ void SemanticSegmentationWithPointCloudIntegrator::coloring_pointcloud(PointClou
 
 bool SemanticSegmentationWithPointCloudIntegrator::is_in_extraction_classes(int r, int g, int b)
 {
+    auto color_tuple = std::make_tuple(r, g, b);
+    for(const auto& value : color_with_class){
+        if(color_tuple == value.first){
+            return true;
+        }
+    }
     return false;
 }
 
