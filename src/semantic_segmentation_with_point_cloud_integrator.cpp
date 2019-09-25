@@ -12,7 +12,7 @@ SemanticSegmentationWithPointCloudIntegrator::SemanticSegmentationWithPointCloud
 
     local_nh.param("MAX_DISTANCE", MAX_DISTANCE, {20.0});
     local_nh.param("LABELS_PATH", LABELS_PATH, {""});
-    local_nh.param("EXTRACTION_CLASSES", EXTRACTION_CLASSES, {"ground, road, sidewald, terrain"});
+    local_nh.param("EXTRACTION_CLASSES", EXTRACTION_CLASSES, {"ground, road, sidewalk, terrain"});
 
     std::cout << "=== semantic_segmentation_with_point_cloud_integrator ===" << std::endl;
     std::cout << "MAX_DISTANCE: " << MAX_DISTANCE << std::endl;
