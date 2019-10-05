@@ -213,7 +213,7 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
 
     // projection/semantic image
     cv::Mat projection_semantic_image;
-    projection_image.copyTo(projection_semantic_image);
+    rgb_image.copyTo(projection_semantic_image);
     for(const auto& pt : semantic_cloud->points){
         cv::Point3d pt_cv(pt.x, pt.y, pt.z);
         cv::Point2d uv;

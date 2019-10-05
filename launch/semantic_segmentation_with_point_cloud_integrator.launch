@@ -10,8 +10,8 @@
         <param name="MAX_DISTANCE" value="$(arg max_distance)"/>
         <param name="LABELS_PATH" value="$(arg labels_path)"/>
         <param name="EXTRACTION_CLASSES" value="$(arg extraction_classes)"/>
-        <remap from="/segmented_image" to="/deeplab_ros/segmented_image"/>
-        <remap from="/camera_info" to="/usb_cam/camera_info"/>
+        <remap from="/segmented_image" to="/deeplab/segmented_image"/>
+        <remap from="/camera_info" to="/camera_info"/>
         <remap from="/pointcloud" to="/velodyne_points"/>
         <remap from="/projection/raw" to="/projection/raw"/>
         <remap from="/projection/semantic" to="/projection/semantic"/>
