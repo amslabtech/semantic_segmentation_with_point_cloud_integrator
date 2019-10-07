@@ -109,11 +109,11 @@ void SemanticSegmentationWithPointCloudIntegrator::callback(const sensor_msgs::I
     }
 }
 
-void SemanticSegmentationWithPointCloudIntegrator::get_color_from_distance(double distance, int& r, int& g, int& b)
+void SemanticSegmentationWithPointCloudIntegrator::get_color_from_distance(double distance, int& b, int& g, int& r)
 {
-    r = 255;
-    g = 255;
     b = 255;
+    g = 255;
+    r = 255;
 
     distance = std::max(std::min(distance, MAX_DISTANCE), 0.0);
 
@@ -157,15 +157,12 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
     cv::Mat cv_image(cv_img_ptr->image.rows, cv_img_ptr->image.cols, cv_img_ptr->image.type());
     cv_image = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::BGR8)->image;
 
-    cv::Mat rgb_image;
-    cv::cvtColor(cv_image, rgb_image, CV_BGR2RGB);
-
     image_geometry::PinholeCameraModel cam_model;
     cam_model.fromCameraInfo(camera_info);
 
     PointCloudTypePtr colored_cloud(new PointCloudType);
     *colored_cloud = *trans_cloud;
-    cv::Mat projection_image = rgb_image.clone();
+    cv::Mat projection_image = cv_image.clone();
 
     // semantic cloud
     PointCloudTypePtr semantic_cloud(new PointCloudType);
@@ -182,18 +179,18 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
             cv::Point2d uv;
             uv = cam_model.project3dToPixel(pt_cv);
 
-            if(uv.x > 0 && uv. x < rgb_image.cols && uv.y > 0 && uv.y < rgb_image.rows){
-                pt.b = rgb_image.at<cv::Vec3b>(uv)[0];
-                pt.g = rgb_image.at<cv::Vec3b>(uv)[1];
-                pt.r = rgb_image.at<cv::Vec3b>(uv)[2];
+            if(uv.x > 0 && uv. x < cv_image.cols && uv.y > 0 && uv.y < cv_image.rows){
+                pt.b = cv_image.at<cv::Vec3b>(uv)[0];
+                pt.g = cv_image.at<cv::Vec3b>(uv)[1];
+                pt.r = cv_image.at<cv::Vec3b>(uv)[2];
 
                 if(is_in_extraction_classes(pt.r, pt.g, pt.b)){
                     semantic_cloud->points.push_back(pt);
                 }
 
                 double distance = sqrt(pt.x * pt.x + pt.y * pt.y + pt.z * pt.z);
-                int r, g, b;
-                get_color_from_distance(distance, r, g, b);
+                int b, g, r;
+                get_color_from_distance(distance, b, g, r);
                 cv::circle(projection_image, uv, 1, cv::Scalar(b, g, r), -1);
             }else{
                 pt.b = 255;
@@ -213,7 +210,7 @@ void SemanticSegmentationWithPointCloudIntegrator::sensor_fusion(const sensor_ms
 
     // projection/semantic image
     cv::Mat projection_semantic_image;
-    rgb_image.copyTo(projection_semantic_image);
+    cv_image.copyTo(projection_semantic_image);
     for(const auto& pt : semantic_cloud->points){
         cv::Point3d pt_cv(pt.x, pt.y, pt.z);
         cv::Point2d uv;
